@@ -30,16 +30,27 @@ class Converter<MAPPER_META : Any, REQUEST_MATE : Any>(
     companion object {
         fun <MAPPER_META : Any, REQUEST_MATE : Any> create(
             vararg matchers: Matcher<MAPPER_META, REQUEST_MATE>,
-            mapperFinder: MapperFinder<MAPPER_META, REQUEST_MATE> = DefaultMapperFinder(),
+            mapperFinder: MapperFinder<MAPPER_META, REQUEST_MATE>? = null,
             cache: MutableMap<Pair<MapperInfo<*, *>, REQUEST_MATE?>, Mapper<*, *>>? = WeakHashMap()
-        ) = Converter(
-            if (cache != null) {
-                CachedMapperFinder(mapperFinder, cache)
-            } else {
-                mapperFinder
-            }
-        ).apply {
+        ) = Converter(createMapperFinder(mapperFinder, cache)).apply {
             matchers.forEach { register(it) }
+        }
+
+        private fun <MAPPER_META : Any, REQUEST_MATE : Any> createMapperFinder(
+            mapperFinder: MapperFinder<MAPPER_META, REQUEST_MATE>?,
+            cache: MutableMap<Pair<MapperInfo<*, *>, REQUEST_MATE?>, Mapper<*, *>>?
+        ): MapperFinder<MAPPER_META, REQUEST_MATE> {
+            return if (mapperFinder == null && cache == null) {
+                DefaultMapperFinder()
+            } else if (mapperFinder == null && cache != null) {
+                CachedMapperFinder(cache = cache)
+            } else if (mapperFinder != null && cache == null) {
+                mapperFinder
+            } else if (mapperFinder != null && cache != null) {
+                CachedMapperFinder(mapperFinder = mapperFinder, cache = cache)
+            } else {
+                DefaultMapperFinder()
+            }
         }
     }
 }
