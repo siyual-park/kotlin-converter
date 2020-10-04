@@ -7,7 +7,7 @@ import java.lang.RuntimeException
 class MapperFinder<MAPPER_META: Any, REQUEST_MATE: Any> {
     private val matchers: MutableList<Matcher<MAPPER_META, REQUEST_MATE>> = mutableListOf()
     private val mappers: MutableList<MapperContainer<*, *, MAPPER_META>> = mutableListOf()
-    private val cache: MutableMap<MapperInfo<*, *>, Mapper<*, *>> = mutableMapOf()
+    private val cache: MutableMap<Pair<MapperInfo<*, *>, REQUEST_MATE?>, Mapper<*, *>> = mutableMapOf()
 
     fun register(matcher: Matcher<MAPPER_META, REQUEST_MATE>): MapperFinder<MAPPER_META, REQUEST_MATE> = this.apply {
         matchers.add(matcher)
@@ -20,7 +20,7 @@ class MapperFinder<MAPPER_META: Any, REQUEST_MATE: Any> {
     }
 
     fun <SOURCE: Any, TARGET: Any> find(info: MapperInfo<SOURCE, TARGET>, meta: REQUEST_MATE? = null): Mapper<SOURCE, TARGET> {
-        return cache.getOrPut(info) {
+        return cache.getOrPut(Pair(info, meta)) {
             for (matcher in matchers) {
                 for ((key, mapper, mapperMeta) in mappers) {
                     if (matcher.match(key, info, mapperMeta, meta)) {
