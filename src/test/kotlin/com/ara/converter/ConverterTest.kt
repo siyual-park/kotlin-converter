@@ -9,8 +9,9 @@ import kotlin.test.assertEquals
 class ConverterTest {
     @Test
     fun testFromDSL() {
-        val converter = Converter()
-        converter.register(CreateUserRequestToUserMapper)
+        val converter = Converter().apply {
+            register(CreateUserRequestToUserMapper)
+        }
 
         val username = "test"
         val password = "testPassword"
@@ -22,8 +23,9 @@ class ConverterTest {
 
     @Test
     fun test() {
-        val converter = Converter()
-        converter.register(CreateUserRequestToUserMapper, MapperInfo(CreateUserRequest::class, Any::class))
+        val converter = Converter().apply {
+            register(CreateUserRequestToUserMapper, MapperInfo(CreateUserRequest::class, Any::class))
+        }
 
         val username = "test"
         val password = "testPassword"
