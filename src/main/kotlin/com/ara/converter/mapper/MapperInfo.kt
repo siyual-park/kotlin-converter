@@ -1,4 +1,4 @@
-package com.ara.converter
+package com.ara.converter.mapper
 
 import kotlin.reflect.KClass
 

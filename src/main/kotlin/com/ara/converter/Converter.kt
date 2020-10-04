@@ -1,26 +1,37 @@
 package com.ara.converter
 
-@Suppress("UNCHECKED_CAST")
-class Converter {
-    private val mappers: MutableMap<MapperInfo<*, *>, Mapper<*, *>> = mutableMapOf()
+import com.ara.converter.mapper.Mapper
+import com.ara.converter.mapper.MapperFinder
+import com.ara.converter.mapper.MapperInfo
+import com.ara.converter.matcher.Matcher
 
-    fun <SOURCE: Any, TARGET: Any> register(mapper: Mapper<SOURCE, TARGET>, info: MapperInfo<out SOURCE, in TARGET>): Converter = this.apply {
-        mappers[info] = mapper
+class Converter<META: Any> {
+    private val mapperFinder: MapperFinder<META> = MapperFinder()
+
+    fun register(matcher: Matcher<META>): Converter<META> = this.apply {
+        mapperFinder.register(matcher)
     }
 
-    fun <SOURCE: Any, TARGET: Any> convert(source: SOURCE, info: MapperInfo<out SOURCE, out TARGET>): TARGET {
-        return findMapper(info).map(source)
+
+    fun <SOURCE: Any, TARGET: Any> register(mapper: Mapper<SOURCE, TARGET>, info: MapperInfo<SOURCE, TARGET>, meta: META? = null): Converter<META> = this.apply {
+        mapperFinder.register(mapper, info, meta)
     }
 
-    private fun <SOURCE: Any, TARGET: Any> findMapper(info: MapperInfo<out SOURCE, out TARGET>): Mapper<SOURCE, TARGET> {
-        return ((mappers[info] ?: throw RuntimeException("Mapper for $info is not defined")) as Mapper<SOURCE, TARGET>)
+    fun <SOURCE: Any, TARGET: Any> convert(source: SOURCE, info: MapperInfo<SOURCE, TARGET>, meta: META? = null): TARGET {
+        return mapperFinder.find(info, meta).map(source)
+    }
+
+    companion object {
+        fun <META: Any> create(vararg matchers: Matcher<META>) = Converter<META>().apply {
+            matchers.forEach { register(it) }
+        }
     }
 }
 
-inline fun <reified SOURCE: Any, reified TARGET: Any> Converter.register(mapper: Mapper<SOURCE, TARGET>): Converter {
-    return this.register(mapper, MapperInfo.create())
+inline fun <reified SOURCE: Any, reified TARGET: Any, META: Any> Converter<META>.register(mapper: Mapper<SOURCE, TARGET>, meta: META? = null): Converter<META> {
+    return this.register(mapper, MapperInfo.create(), meta)
 }
 
-inline fun <reified SOURCE: Any, reified TARGET: Any> Converter.convert(source: SOURCE): TARGET {
-    return this.convert(source, MapperInfo.create())
+inline fun <reified SOURCE: Any, reified TARGET: Any, META: Any> Converter<META>.convert(source: SOURCE, meta: META? = null): TARGET {
+    return this.convert(source, MapperInfo.create(), meta)
 }

@@ -18,6 +18,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
+    implementation("org.jetbrains.kotlin", "kotlin-reflect", kotlin_version)
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junit_version)
     testImplementation("org.jetbrains.kotlin", "kotlin-test", kotlin_version)

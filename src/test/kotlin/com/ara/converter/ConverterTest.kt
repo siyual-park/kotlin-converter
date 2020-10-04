@@ -1,5 +1,7 @@
 package com.ara.converter
 
+import com.ara.converter.matcher.ExactMatcher
+import com.ara.converter.matcher.ExtendMatcher
 import com.ara.converter.mock.CreateUserRequest
 import com.ara.converter.mock.CreateUserRequestToUserMapper
 import com.ara.converter.mock.User
@@ -8,8 +10,8 @@ import kotlin.test.assertEquals
 
 class ConverterTest {
     @Test
-    fun testFromDSL() {
-        val converter = Converter().apply {
+    fun testExactMatch() {
+        val converter = Converter.create(ExactMatcher.create()).apply {
             register(CreateUserRequestToUserMapper)
         }
 
@@ -22,19 +24,17 @@ class ConverterTest {
     }
 
     @Test
-    fun testConvertSuperClass() {
-        val converter = Converter().apply {
-            register(CreateUserRequestToUserMapper, MapperInfo(CreateUserRequest::class, Any::class))
+    fun testExtendMatch() {
+        val converter = Converter.create(ExtendMatcher.create()).apply {
             register(CreateUserRequestToUserMapper)
         }
 
         val username = "test"
         val password = "testPassword"
-        val userRequest = CreateUserRequest(username, password)
 
-        val userFromAny: Any = converter.convert(userRequest)
-        val userFromUser: User = converter.convert(userRequest)
+        val exactMatched: User = converter.convert(CreateUserRequest(username, password))
+        val extendMatched: Any = converter.convert(CreateUserRequest(username, password))
 
-        assertEquals(userFromAny, userFromUser)
+        assertEquals(exactMatched, extendMatched)
     }
 }
