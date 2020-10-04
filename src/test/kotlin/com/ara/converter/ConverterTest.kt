@@ -1,8 +1,6 @@
 package com.ara.converter
 
-import com.ara.converter.matcher.ExactMatcher
-import com.ara.converter.matcher.ExtendMatcher
-import com.ara.converter.matcher.NameMatcher
+import com.ara.converter.matcher.*
 import com.ara.converter.mock.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -39,7 +37,11 @@ class ConverterTest {
 
     @Test
     fun testNamedMatch() {
-        val converter = Converter.create(NameMatcher.from(ExtendMatcher.create()), ExtendMatcher.create()).apply {
+        val extendMatcher = ExtendMatcher.create<String, String>()
+        val converter = Converter.create(
+            Matcher.and(extendMatcher, NameMatcher.create()),
+            extendMatcher
+        ).apply {
             register(IntMinusMapper, "minus")
             register(IntPlusMapper, "plus")
             register(IntPassMapper)
