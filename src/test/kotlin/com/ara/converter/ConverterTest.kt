@@ -22,16 +22,19 @@ class ConverterTest {
     }
 
     @Test
-    fun test() {
+    fun testConvertSuperClass() {
         val converter = Converter().apply {
             register(CreateUserRequestToUserMapper, MapperInfo(CreateUserRequest::class, Any::class))
+            register(CreateUserRequestToUserMapper)
         }
 
         val username = "test"
         val password = "testPassword"
-        val user: User = converter.convert(CreateUserRequest(username, password), MapperInfo(CreateUserRequest::class, Any::class))
+        val userRequest = CreateUserRequest(username, password)
 
-        assertEquals(user.username, username)
-        assertEquals(user.password, password)
+        val userFromAny: Any = converter.convert(userRequest)
+        val userFromUser: User = converter.convert(userRequest)
+
+        assertEquals(userFromAny, userFromUser)
     }
 }

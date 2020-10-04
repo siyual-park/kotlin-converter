@@ -8,11 +8,11 @@ class Converter {
         mappers[info] = mapper
     }
 
-    fun <SOURCE: Any, TARGET: Any> convert(source: SOURCE, info: MapperInfo<out SOURCE, in TARGET>): TARGET {
+    fun <SOURCE: Any, TARGET: Any> convert(source: SOURCE, info: MapperInfo<out SOURCE, out TARGET>): TARGET {
         return findMapper(info).map(source)
     }
 
-    private fun <SOURCE: Any, TARGET: Any> findMapper(info: MapperInfo<out SOURCE, in TARGET>): Mapper<SOURCE, TARGET> {
+    private fun <SOURCE: Any, TARGET: Any> findMapper(info: MapperInfo<out SOURCE, out TARGET>): Mapper<SOURCE, TARGET> {
         return ((mappers[info] ?: throw RuntimeException("Mapper for $info is not defined")) as Mapper<SOURCE, TARGET>)
     }
 }
