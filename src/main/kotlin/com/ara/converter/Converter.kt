@@ -43,7 +43,7 @@ class Converter<MAPPER_META : Any, REQUEST_MATE : Any>(
             return if (mapperFinder == null && cache == null) {
                 DefaultMapperFinder()
             } else if (mapperFinder == null && cache != null) {
-                CachedMapperFinder(cache = cache)
+                CachedMapperFinder(mapperFinder = DefaultMapperFinder(), cache = cache)
             } else if (mapperFinder != null && cache == null) {
                 mapperFinder
             } else if (mapperFinder != null && cache != null) {
